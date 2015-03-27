@@ -1,19 +1,24 @@
+require 'thwait'
+
 # Run tasks in parallel threads
 class ParallelTasker
  
   # Set max number of parallel threads
   def initialize limit
     @limit = limit
-    @ids = []
     @tasks = {}
   end
-
-  alias_method :<<, :add_task
  
   # Add task to be executed.
   def add_task id, &task
-    @ids << id
     @tasks[id] = task
+  end
+
+  alias_method :<<, :add_task
+
+  # Return block for task with given id
+  def task id
+    @tasks[id]
   end
  
   # Execute all tasks in separate threads, with maximum asked limit of parallel
