@@ -2,10 +2,40 @@ require 'parallel_tasker'
 
 RSpec.describe ParallelTasker do
   
-  let(:limit){2}
+  let(:concurrency){2}
   
   subject do
-    ParallelTasker.new(limit)
+    ParallelTasker.new(concurrency)
+  end
+
+  context '#initialize' do
+
+    context 'block_given' do
+
+      it 'yields self' do
+        yielded_obj = nil
+        pt = ParallelTasker.new(concurrency){|i| yielded_obj = i}
+        expect(yielded_obj).to eq(pt)
+      end
+
+      it 'calls #run if not called inside block' do
+        expect_any_instance_of(ParallelTasker).to receive(:run)
+        ParallelTasker.new(concurrency) do |pt|
+          pt.add_task(:task){}
+        end
+      end
+
+      it 'does not call #run if already called inside block' do
+        expect_any_instance_of(ParallelTasker).to receive(:run).and_wrap_original do |m|
+          m.call
+        end
+        ParallelTasker.new(concurrency) do |pt|
+          pt.add_task(:task){}
+          pt.run
+        end
+      end
+    end
+    
   end
 
   context '#add_task, #task' do
@@ -34,12 +64,12 @@ RSpec.describe ParallelTasker do
       end
     end
 
-    it 'respects parallelism' do
+    it 'respects concurrency' do
       parallelism = 0
       (0...max_tasks).each do |id|
         subject.add_task(id) do
           parallelism += 1
-          expect(parallelism).to be <= limit
+          expect(parallelism).to be <= concurrency
           sleep id
           parallelism -=1
         end
