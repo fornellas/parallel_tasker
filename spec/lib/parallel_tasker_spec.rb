@@ -38,15 +38,6 @@ RSpec.describe ParallelTasker do
     
   end
 
-  context '#add_task, #task' do
-    it 'adds and retrieve tasks' do
-      id = :empty_block
-      block = proc{}
-      subject.add_task id, &block
-      expect(subject.task id).to eq(block)
-    end
-  end
-
   context '#run' do
 
     let(:max_tasks){5}
@@ -77,6 +68,20 @@ RSpec.describe ParallelTasker do
       subject.run
       pending_tasks = parallelism
       expect(pending_tasks).to eq(0)
+    end
+
+    it 'returns result hash' do
+      subject.add_task(:raise) do
+        raise
+      end
+      subject.add_task(:true) do
+        true
+      end
+      result = subject.run
+      expect do
+        result[:raise].value
+      end.to raise_error
+      expect(result[:true].value).to eq(true)
     end
 
   end
