@@ -1,7 +1,7 @@
 # parallel_tasker
 Small Ruby Gem to run tasks in parallel.
 
-This is useful when you wish to parallelize tasks and wish to have a concurrency limit, and does not want to deal with Thread synchronization.
+This is useful when you need to parallelize tasks with concurrency limit, and does not want to deal with Threads.
 
 # Example
 
